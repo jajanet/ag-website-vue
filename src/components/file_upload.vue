@@ -15,20 +15,21 @@
 
         <div id="drop-here">Drop files here</div>
         <div id="or">- or -</div>
-        <button id="add-files"
-                class="gray-button"
+        <button id="add-files-button"
                 @click="$refs.file_input.click()">
-          <div>Upload from your computer</div>
+          <div> Choose files from your computer</div>
         </button>
 
       </div>
     </div>
 
-    <table class="student-files-uploaded-table">
+    <table v-if="d_files.size() >= 1"
+           class="student-files-uploaded-table">
       <thead>
         <tr>
           <th class="name-of-file-label"><slot name="file_list_label">Files to Upload</slot></th>
           <th class="size-of-file-label">Size</th>
+          <th class="remove-file-label">Remove</th>
         </tr>
       </thead>
       <tbody>
@@ -36,29 +37,30 @@
             :key="file.name">
           <td class="name-of-file">{{file.name}}</td>
           <td class="size-of-file">{{file.size}} Bytes</td>
-          <td>
-            <i class="fas fa-times remove-file-button"
+          <td class="remove-file">
+            <div class="fas fa-times remove-file-button"
                @click="remove_file_from_upload(file.name, index)"
                :class="file.size === 0 ? 'remove-button-icon-empty-file' :
                                          'remove-button-icon-non-empty-file'">
-            </i>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
-    <button class="upload-files-button green-button" @click="attempt_to_upload()">
-      <slot name="upload_button_text">Upload</slot>
+    <button v-if="d_files.size() >= 1"
+            class="upload-files-button"
+            :disabled="d_files.empty()"
+            @click="attempt_to_upload()">
+      <slot name="upload_button_text">Upload Files</slot>
     </button>
 
     <modal ref="empty_file_found_in_upload_attempt"
            size="large"
            :include_closing_x="false">
-      <h2>Empty Files detected</h2>
+      <div class="modal-header">Empty Files detected</div>
       <hr>
       <div class="modal-body">
-        <p class="empty-file-list-label">
-          The following files are empty:
-        </p>
+        <p class="empty-file-list-label"> The following files are empty: </p>
         <ul class="list-of-empty-file-names">
           <li v-for="empty_file of d_empty_filenames.data">
             <i class="fas fa-exclamation-triangle empty-warning-symbol"></i>
@@ -68,12 +70,10 @@
       </div>
       <div class="modal-footer">
         <button class="upload-despite-empty-files-button gray-button"
-                @click="continue_with_upload_despite_empty_files()">
-          Upload Anyway
+                @click="continue_with_upload_despite_empty_files()"> Upload Anyway
         </button>
         <button class="cancel-upload-process-button red-button"
-                @click="$refs.empty_file_found_in_upload_attempt.close()">
-          Cancel
+                @click="$refs.empty_file_found_in_upload_attempt.close()"> Cancel
         </button>
       </div>
     </modal>
@@ -227,108 +227,126 @@
   padding: 0 0 5px 0;
 }
 
-#add-files {
+#add-files-button {
+  @extend .blue-button;
   border: none;
-  font-size: large;
   color: white;
+  font-size: large;
 }
 
-.student-files-uploaded-table {
+table {
   border-collapse: collapse;
   margin-top: 10px;
-  margin-bottom: 10px;
   width: 100%;
 }
 
-.student-files-uploaded-table td {
-  padding: 10px;
-  border-right: 0;
-  border-left: 0;
-}
-
-.name-of-file, .size-of-file {
-  padding-top: 15px;
-}
-
-.name-of-file-label, .size-of-file-label {
-  border-bottom: none;
-  font-size: 18px;
+th {
+  border-bottom: 2px solid hsl(210, 20%, 92%);
+  font-size: 16px;
   text-align: left;
-  padding: 10px;
+  padding: 7px 15px;
 }
 
-.file-empty-row, .file-not-empty-row-even, .file-not-empty-row-odd {
-  border-top: 0;
-  border-bottom: 5px solid white;
+td {
+  border-bottom: 1px solid hsl(210, 20%, 94%);
+  font-size: 16px;
+  padding: 7px 15px;
+}
+
+.remove-file {
+  width: 50px;
+  text-align: center;
 }
 
 .file-empty-row {
   background-color: $warning-red;
-  color: white;
   border-radius: 10px;
+  color: white;
 }
 
 .file-not-empty-row-odd {
-  background-color: $pebble-light;
+  background-color: white;
 }
 
 .file-not-empty-row-even {
-  background-color: $pebble-medium;
+  background-color: hsl(210, 20%, 96%);
 }
 
-table tbody tr td {
-  border-top: 0;
-}
-
-.remove-button-icon-empty-file, .remove-button-icon-non-empty-file {
-  vertical-align: middle;
-  cursor: pointer;
+.remove-file-button {
+  padding: 10px 15px;
 }
 
 .remove-button-icon-non-empty-file {
-  color: $warning-red;
+  color: hsl(212, 10%, 47%);
+  cursor: pointer;
+}
+
+.remove-button-icon-non-empty-file:hover {
+  color: hsl(212, 50%, 22%);
 }
 
 .remove-button-icon-empty-file {
   color: white;
+  cursor: pointer;
 }
 
-.modal-title {
-  text-align: left;
+.upload-files-button {
+  @extend .green-button;
+  margin-top: 20px;
+}
+
+.upload-files-button:disabled {
+  @extend .gray-button;
+}
+
+/**** Modal *******************************************************************/
+
+.modal-header {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  padding: 5px 0;
+}
+
+.modal-body {
+  padding: 10px 0 0 0;
+}
+
+.modal-footer {
+  text-align: right;
+}
+
+.empty-file-list-label {
+  margin: 0 10px 0 0;
+  padding: 0;
+  display: inline-block;
 }
 
 .upload-despite-empty-files-button {
   margin-right: 15px;
 }
 
-.upload-despite-empty-files-button, .cancel-upload-process-button, .upload-files-button {
-  padding: 10px 15px;
-  border: 0;
+.empty-warning-symbol {
+  color: orange;
+  padding-right: 5px;
 }
 
 .list-of-empty-file-names {
   padding: 0;
-  margin-bottom: 0;
-}
-
-.empty-warning-symbol {
-  color: orange;
-  padding-right: 10px;
+  margin: 0 0 30px 0;
+  display: inline-block;
+  vertical-align: top;
 }
 
 .list-of-empty-file-names li {
-  padding-bottom: 5px;
+  color: black;
   list-style-type: none;
   margin-bottom: 2px;
-  margin-left: 17px;
-  color: black;
+  margin-left: 10px;
+  padding-bottom: 5px;
 }
 
 .list-of-empty-file-names li:last-child {
-  margin-bottom: 15px;
-}
-
-.empty-file-list-label {
   margin-bottom: 15px;
 }
 
