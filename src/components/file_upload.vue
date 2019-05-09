@@ -17,7 +17,7 @@
         <div id="or">- or -</div>
         <button id="add-files-button"
                 @click="$refs.file_input.click()">
-          <div> Choose files from your computer</div>
+          <div> Choose your files </div>
         </button>
 
       </div>
@@ -39,16 +39,16 @@
           <td class="size-of-file">{{file.size}} Bytes</td>
           <td class="remove-file">
             <div class="fas fa-times remove-file-button"
-               @click="remove_file_from_upload(file.name, index)"
-               :class="file.size === 0 ? 'remove-button-icon-empty-file' :
-                                         'remove-button-icon-non-empty-file'">
+                 :title="'Remove ' + file.name"
+                 @click="remove_file_from_upload(file.name, index)"
+                 :class="file.size === 0 ? 'remove-button-icon-empty-file'
+                                         : 'remove-button-icon-non-empty-file'">
             </div>
           </td>
         </tr>
       </tbody>
     </table>
-    <button v-if="d_files.size() >= 1"
-            class="upload-files-button"
+    <button class="upload-files-button"
             :disabled="d_files.empty()"
             @click="attempt_to_upload()">
       <slot name="upload_button_text">Upload Files</slot>
@@ -250,7 +250,7 @@ th {
 td {
   border-bottom: 1px solid hsl(210, 20%, 94%);
   font-size: 16px;
-  padding: 7px 15px;
+  padding: 2px 15px;
 }
 
 .remove-file {
@@ -293,10 +293,6 @@ td {
 .upload-files-button {
   @extend .green-button;
   margin-top: 20px;
-}
-
-.upload-files-button:disabled {
-  @extend .gray-button;
 }
 
 /**** Modal *******************************************************************/
